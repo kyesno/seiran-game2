@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.json" />
-  <title>異世界魔導學園戰略錄 - v11.0 雙端自適應正式版 (PC × 手機平板PWA)</title>
+  <title>異世界魔導學園戰略錄 - v11.1 雙端自適應正式版 (PC × 手機平板PWA)</title>
   <style id="v11MobileAdaptiveCss">
     #hexCanvas, #battleCanvas { touch-action: none; -webkit-user-select: none; user-select: none; }
     #mobileTouchControlsOverlay { pointer-events: none; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -32,8 +32,62 @@
       #battleSandboxView > aside { display: none !important; }
       #virtualControlsBody { display: none !important; }
     }
+    /* 【V11.1 修正】手機橫屏與直屏標題主畫面完整適配，絕不讓立繪擠掉選單或鎖死捲動 */
+    @media (max-width: 1023px), (max-height: 560px) {
+      #startMenuModal { padding: 4px !important; align-items: stretch !important; }
+      #startMenuHeroBg {
+        flex-direction: row !important;
+        max-height: 98dvh !important;
+        height: 98dvh !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+      }
+      #startMenuHeroBg > div:nth-of-type(2) {
+        width: 30% !important;
+        min-width: 175px !important;
+        max-width: 240px !important;
+        padding: 8px !important;
+        border-bottom: none !important;
+        border-right: 1px solid rgba(99, 102, 241, 0.35) !important;
+        overflow-y: auto !important;
+      }
+      #titleHeroPortraitImg { height: 120px !important; max-height: 36dvh !important; }
+      #titleHeroPortraitQuote { display: none !important; }
+      #startMenuHeroBg > div:nth-of-type(3) {
+        width: 70% !important;
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+        padding: 10px 12px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        justify-content: flex-start !important;
+      }
+      #startMenuHeroBg h1 { font-size: 16px !important; line-height: 1.2 !important; }
+      #titleSectionMode { overflow-y: visible !important; flex: none !important; }
+    }
     @media (max-width: 760px) and (orientation: portrait) {
       #mobilePortraitPrompt:not(.portrait-dismissed) { display: flex !important; }
+      #startMenuHeroBg {
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      #startMenuHeroBg > div:nth-of-type(2) {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.35) !important;
+        flex: none !important;
+        padding: 8px 10px !important;
+      }
+      #titleHeroPortraitImg { height: 115px !important; }
+      #startMenuHeroBg > div:nth-of-type(3) {
+        width: 100% !important;
+        flex: none !important;
+        overflow-y: visible !important;
+        padding: 10px !important;
+      }
     }
   </style>
 <style id="offlineTailwindBundle">
@@ -707,7 +761,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
 
-  <!-- v11.0 單排精簡頂部控制列：主操作直接外露，次要系統收進「⚙️ 系統/圖鑑」下拉抽屜 -->
+  <!-- v11.1 單排精簡頂部控制列：主操作直接外露，次要系統收進「⚙️ 系統/圖鑑」下拉抽屜 -->
   <header class="bg-slate-900/95 border-b border-indigo-500/50 px-3 py-1.5 sticky top-0 z-30 backdrop-blur shadow-xl">
     <div style="display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:8px;" class="max-w-[1640px] mx-auto">
       <!-- 左側：主選單 + 回合 + 精簡戰略數據 -->
@@ -817,7 +871,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div id="hexMapViewport" style="min-height: clamp(360px, 70vh, 640px);" class="relative w-full aspect-[16/10] bg-slate-900 rounded-xl overflow-hidden border-2 border-indigo-500/40 shadow-2xl">
         <canvas id="hexMapCanvas" class="cursor-grab active:cursor-grabbing"></canvas>
 
-        <!-- v11.0 棋盤右下角獨立「🌙 結束回合」按鈕（不重複顯示主選單/基地） -->
+        <!-- v11.1 棋盤右下角獨立「🌙 結束回合」按鈕（不重複顯示主選單/基地） -->
         <div class="absolute bottom-3 right-3 z-20 flex items-center">
           <button id="btnBoardQuickMenu" type="button" class="hidden"></button>
           <button id="btnBoardQuickBase" type="button" class="hidden"></button>
@@ -1240,7 +1294,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div style="min-height: clamp(320px, 64vh, 560px);" class="relative w-full aspect-[16/9] bg-slate-900 rounded-xl overflow-hidden border-2 border-indigo-500/40 shadow-2xl">
         <canvas id="battleCanvas"></canvas>
 
-        <!-- 【V11.0 手機/平板專屬】2.5D 橫屏半透明 360° 圓形虛擬搖桿 ＋ 右下四顆大圓技能鍵 -->
+        <!-- 【V11.1 手機/平板專屬】2.5D 橫屏半透明 360° 圓形虛擬搖桿 ＋ 右下四顆大圓技能鍵 -->
         <div id="mobileTouchControlsOverlay" style="position:absolute; inset:0; z-index:18; display:none;">
           <!-- 左下：圓形虛擬搖桿 -->
           <div id="mobileJoyBase" style="position:absolute; left:18px; bottom:18px; width:124px; height:124px; border-radius:9999px; background:rgba(15,23,42,0.45); border:2px solid rgba(56,189,248,0.65); box-shadow:inset 0 0 18px rgba(56,189,248,0.22); display:flex; align-items:center; justify-content:center;">
@@ -1263,7 +1317,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           </div>
         </div>
 
-        <!-- v11.0 精簡街機 HUD：壓縮高度讓 2.5D 戰場天空與跳躍視野更開闊 -->
+        <!-- v11.1 精簡街機 HUD：壓縮高度讓 2.5D 戰場天空與跳躍視野更開闊 -->
         <div id="battleTopSkillBar" style="display:block; position:absolute; top:0; left:0; right:0; width:100%; box-sizing:border-box; z-index:15; padding:4px 6px;" class="pointer-events-none">
           <div style="display:flex; flex-direction:row; align-items:flex-start; gap:6px; width:100%;">
 
@@ -1476,7 +1530,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         </div>
       </div>
 
-      <!-- v11.0 可折疊鍵盤與觸控操作列（預設收合節省垂直空間） -->
+      <!-- v11.1 可折疊鍵盤與觸控操作列（預設收合節省垂直空間） -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1.5 shadow-lg">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
           <span class="text-[11px] font-mono text-slate-300 truncate">💡 1P: WASD + F/G/H/R(或1~4) ｜ 2P: 方向鍵 + 小鍵盤1~4 ｜ P / ESC 暫停</span>
@@ -4381,7 +4435,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         return reachable;
       }
 
-      // 【V11.0 升級】戰略 AI 單次完整 BFS 尋路：允許穿越友軍、嚴格繞開敵軍與敵方主基地、必停於空格，徹底杜絕左右晃動！
+      // 【V11.1 升級】戰略 AI 單次完整 BFS 尋路：允許穿越友軍、嚴格繞開敵軍與敵方主基地、必停於空格，徹底杜絕左右晃動！
       function computeEnemyFullPath(unit, targetCol, targetRow, desiredDist = 1, maxSteps = 3, opts = {}) {
         if (!unit || maxSteps <= 0) return [];
         const startKey = `${unit.col},${unit.row}`;
@@ -5631,7 +5685,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       }
 
       // =====================================================================
-      // 【V11.0 核心】鄰接 7 格混戰捲入 vs 據點/基地守城戰（野戰 4v4；設施/副基地/主基地守城 守4攻3；智慧先發排序）
+      // 【V11.1 核心】鄰接 7 格混戰捲入 vs 據點/基地守城戰（野戰 4v4；設施/副基地/主基地守城 守4攻3；智慧先發排序）
       // =====================================================================
       function getEngagementSlotCaps(plan) {
         if (!plan) return { allyCap: 4, enemyCap: 4, isFortified: false, label: '野戰 4 vs 4' };
@@ -6961,7 +7015,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         HexCamera.edgeVy = 0;
       });
 
-      // 【V11.0 雙端觸控手勢】單指拖曳平移棋盤 ＋ 雙指縮放 (Pinch-to-Zoom) ＋ 輕點精準選格
+      // 【V11.1 雙端觸控手勢】單指拖曳平移棋盤 ＋ 雙指縮放 (Pinch-to-Zoom) ＋ 輕點精準選格
       (() => {
         let touchMode = 'none';
         let pinchStartDist = 0;
@@ -8136,7 +8190,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         }
       }
 
-      // 【V11.0 新增】單位實戰戰力評估（造價/階級 × 血量權重 × 等級加成 × 載具折減）
+      // 【V11.1 新增】單位實戰戰力評估（造價/階級 × 血量權重 × 等級加成 × 載具折減）
       function evaluateV91UnitPower(u) {
         if (!u || u.hp <= 0) return 0;
         const baseVal = u.cost || ((u.tier || 1) * 180);
@@ -8147,7 +8201,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         return baseVal * hpFactor * lvFactor * vehFactor;
       }
 
-      // 【V11.0 修正】評估敵軍對指定我方目標發動 7 格會戰的「攻守先發戰力比」與積極進攻／防送頭門檻
+      // 【V11.1 修正】評估敵軍對指定我方目標發動 7 格會戰的「攻守先發戰力比」與積極進攻／防送頭門檻
       function evaluateEnemyEngagementDecision(attacker, targetAlly, attackHex = null, includeConverging = false) {
         // 關鍵修正：若單位尚未貼鄰目標，自動模擬其推進至目標鄰格後的 7 格戰力，避免原本遠處誤算成 attPower=0 導致全員龜縮！
         let virtPos = attackHex;
@@ -8231,7 +8285,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         };
       }
 
-      // 【V11.0 新增】敵方載具卸載已回滿血（>= 80% HP）且非當回合上車的乘客
+      // 【V11.1 新增】敵方載具卸載已回滿血（>= 80% HP）且非當回合上車的乘客
       function tryEnemyVehicleUnloadHealedCargo(veh) {
         if (!veh || !veh.isVehicle || !Array.isArray(veh.cargo) || veh.cargo.length === 0) return 0;
         let unloaded = 0;
@@ -8270,7 +8324,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
 
         const eFac = HexWorld.enemyFaction || 'prefect';
 
-        // 【V11.0 智慧行動佇列順序】：1.砲兵先轟炸軟化 → 2.有滿血乘客的載具先卸載支援 → 3.主力近戰/遠攻/刺客圍毆 → 4.偵察兵搶點與收尾
+        // 【V11.1 智慧行動佇列順序】：1.砲兵先轟炸軟化 → 2.有滿血乘客的載具先卸載支援 → 3.主力近戰/遠攻/刺客圍毆 → 4.偵察兵搶點與收尾
         const getAiQueuePriority = (u) => {
           if (isUnitArtilleryPreferred(u)) return 0;
           if (u.isVehicle && u.cargo && u.cargo.some(p => p.boardedTurn !== HexWorld.turn && p.hp >= p.maxHp * 0.80)) return 1;
@@ -8355,7 +8409,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           const maxEnemyOnMap = isHeroHighStage ? (HexWorld.storyChapter === 3 ? 28 : 22) : 16;
           const maxDeployPerTurn = isHeroHighStage ? 3 : 2;
 
-          // 【V11.0 針對性反制招募】：依我方陣容補強砲兵/刺客/偵察或後勤載具
+          // 【V11.1 針對性反制招募】：依我方陣容補強砲兵/刺客/偵察或後勤載具
           const playerLive = HexWorld.units.filter(u => u.team === 'ally' && u.hp > 0);
           const playerTanks = playerLive.filter(u => u.role === 'cc').length;
           const playerArt = playerLive.filter(u => u.role === 'artillery').length;
@@ -8405,7 +8459,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             addHexLog(`🚨 敵方【${FACTIONS[eFac].name}】派駐 ${spawned.name} 於 (${sp.col},${sp.row}) 出陣待機（出擊當回合強制待機）！`, 'text-rose-300');
           }
 
-          // 【V11.0 調整】移除副基地每 3 回合憑空刷兵，所有敵軍皆由主基地正規招募與機庫派駐
+          // 【V11.1 調整】移除副基地每 3 回合憑空刷兵，所有敵軍皆由主基地正規招募與機庫派駐
         }
 
         addHexLog(`🔴 【敵方回合開始】${FACTIONS[eFac].name} 共 ${HexWorld.enemyTurnQueue.length} 支敵軍部隊開始依序行動...`, 'text-rose-400 font-bold');
@@ -8560,7 +8614,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           }
         }
 
-        // 【V11.0 殘血撤退回血邏輯】：非載具單位 HP <= 35% 時，優先撤入可達友軍載具或敵方主基地機庫回血！
+        // 【V11.1 殘血撤退回血邏輯】：非載具單位 HP <= 35% 時，優先撤入可達友軍載具或敵方主基地機庫回血！
         const hpPct = eUnit.hp / Math.max(1, eUnit.maxHp);
         if (!eUnit.isVehicle && hpPct <= 0.35) {
           const reachMap = getReachableHexes(eUnit);
@@ -8904,7 +8958,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           document.getElementById('btnBackHexQuick')?.click();
         });
 
-        // 【V11.0 雙端自適應控制中樞】：虛擬圓形搖桿、技能圓鍵、手機資訊抽屜、全螢幕、雙人手機自動演武、PWA 註冊
+        // 【V11.1 雙端自適應控制中樞】：虛擬圓形搖桿、技能圓鍵、手機資訊抽屜、全螢幕、雙人手機自動演武、PWA 註冊
         const isTouchDeviceV11 = () => (
           ('ontouchstart' in window) ||
           (navigator.maxTouchPoints > 0) ||
@@ -9344,7 +9398,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         initHexWorld();
       });
 
-      // 【V11.0 新增】全 8 種單位種類統一圖示與中文標籤（棋盤名牌、右方資訊欄、浮動選單共用）
+      // 【V11.1 新增】全 8 種單位種類統一圖示與中文標籤（棋盤名牌、右方資訊欄、浮動選單共用）
       function getUnitRoleMeta(u) {
         const role = (u && u.role) ? u.role : (u && u.isVehicle ? 'vehicle' : 'melee');
         const map = {
@@ -9863,7 +9917,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           }
         });
 
-        // 【V11.0 視覺強化】點選敵方砲兵／武裝載具時，繪製紅色警戒射程圈！
+        // 【V11.1 視覺強化】點選敵方砲兵／武裝載具時，繪製紅色警戒射程圈！
         if (sel && sel.team !== getActivePlayerTeam() && sel.canArtillery && sel.artilleryRange && (sel.mapShells === undefined || sel.mapShells > 0)) {
           const [minR, maxR] = sel.artilleryRange;
           HexWorld.tiles.forEach(t => {
@@ -10249,7 +10303,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         document.getElementById('wipeoutBanner').classList.add('hidden');
         document.getElementById('engagementPreviewCard').classList.add('hidden');
 
-        // 【V11.0 方案B】野戰 4 vs 4；設施／副基地／主基地守城時為 守方 4 vs 攻方 3！
+        // 【V11.1 方案B】野戰 4 vs 4；設施／副基地／主基地守城時為 守方 4 vs 攻方 3！
         const slotCaps = getEngagementSlotCaps(plan);
         const allyMaxSlots = slotCaps.allyCap;
         const enemyMaxSlots = slotCaps.enemyCap;
@@ -11254,7 +11308,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         }
 
         // 特性 3：斥候突進型「⚡ 閃電突進斬」(CD: 4.5秒 = 270幀，向前高速衝刺 148px，0%破甲)
-        // 【v11.0 新增】豪體會 T4-5 無雙黑帶柔道大關「🥋 霸體鐵山靠・地震掌」（攻緩高爆發＋1.8s霸體＋超遠擊飛）
+        // 【v11.1 新增】豪體會 T4-5 無雙黑帶柔道大關「🥋 霸體鐵山靠・地震掌」（攻緩高爆發＋1.8s霸體＋超遠擊飛）
         if (trait === 'judo_slam') {
           unit.skillKCd = 432;
           unit.attackCd = 48;
@@ -11279,7 +11333,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           return;
         }
 
-        // 【v11.0 調整】神樂組 T4-5 雅樂鎮魂古箏陰陽師「🪕 八卦鎮魂定身爆破」（遠控小範圍92px爆破＋定身1.4s・CD 8.0s）
+        // 【v11.1 調整】神樂組 T4-5 雅樂鎮魂古箏陰陽師「🪕 八卦鎮魂定身爆破」（遠控小範圍92px爆破＋定身1.4s・CD 8.0s）
         if (trait === 'koto_bind') {
           unit.skillKCd = 480;
           unit.attackCd = 34;
@@ -11308,7 +11362,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           return;
         }
 
-        // 【v11.0 調整】極限Cos研 T4-5 全裝甲浮游砲機娘「🛸 光盾浮游砲齊射」（僅0.6s施法霸體，可被控場單位穩定暈眩）
+        // 【v11.1 調整】極限Cos研 T4-5 全裝甲浮游砲機娘「🛸 光盾浮游砲齊射」（僅0.6s施法霸體，可被控場單位穩定暈眩）
         if (trait === 'funnel_shield') {
           unit.skillKCd = 408;
           unit.attackCd = 32;
@@ -11344,7 +11398,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           return;
         }
 
-        // 【v11.0 強化】學生會 T4-5 學園新聞部・閃光暗影特派員「📸 極速瞬影・騰空三連斬」（移除多餘短致盲，改為高速3段50%破甲連斬＋加速，CD 7.2s）
+        // 【v11.1 強化】學生會 T4-5 學園新聞部・閃光暗影特派員「📸 極速瞬影・騰空三連斬」（移除多餘短致盲，改為高速3段50%破甲連斬＋加速，CD 7.2s）
         if (trait === 'flash_ambush') {
           unit.skillKCd = 540;
           unit.attackCd = 30;
@@ -12367,7 +12421,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         // 【V3.6 四大社團 T4-1 總長專屬客製化必殺奧義】
         // =====================================================================
         // A. 極限Cos研總長・滅世魔法少女 (magical_girl_ace)：遠攻直接 5 連彈，命中任一發後傷害遞減！
-        // 【v11.0 T4-5 特化單位專屬必殺奧義】
+        // 【v11.1 T4-5 特化單位專屬必殺奧義】
         if (unit.spriteKey === 'judo_champion') {
           applySingleBattleBuff(0.25, 0);
           unit.superArmorTimer = 120;
@@ -12789,7 +12843,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
               }
             });
           } else {
-            // 【V11.0 強化】學生會交響三連重砲陣改為鎖敵精準彈道（玩家與 NPC 皆能穩定命中移動目標）
+            // 【V11.1 強化】學生會交響三連重砲陣改為鎖敵精準彈道（玩家與 NPC 皆能穩定命中移動目標）
             addFloatingText(unit.x, unit.y - 90, `🎺 必殺・交響鎖敵三連重砲！(3連鎖敵重砲・破甲60%・ATK+20% | 餘${unit.ammo}/${unit.maxAmmo})`, '#f59e0b', 16);
             [0, 1, 2].forEach((idx) => {
               setTimeout(() => {
@@ -14884,7 +14938,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           ctx.fillStyle = u.isPlayer ? '#f472b6' : (u.team === 'ally' ? '#38bdf8' : '#fda4af');
           const cargoTag = (u.isVehicle && u.cargoCount > 0) ? ` [車內載${u.cargoCount}人]` : '';
           ctx.fillText(`${u.name}${cargoTag}`, sx, topY - 5);
-          // 【V11.0 視覺強化】2.5D 頭頂即時狀態小標籤（暈眩／霸體／疾走）
+          // 【V11.1 視覺強化】2.5D 頭頂即時狀態小標籤（暈眩／霸體／疾走）
           const badges = [];
           if (u.state !== 'STUNNED' && (u.stunTimer || 0) > 0) u.stunTimer = 0;
           if (u.state === 'STUNNED' && (u.stunTimer || 0) > 0) badges.push({ txt: '💫暈眩', bg: 'rgba(234,179,8,0.92)', fg: '#0f172a' });
@@ -16296,7 +16350,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       };
     })();
   
-      // v11.0 UI/UX Refactor Listeners
+      // v11.1 UI/UX Refactor Listeners
       (function initV70UiControls() {
         const drawerBtn = document.getElementById('btnToggleTopSystemDrawer');
         const drawer = document.getElementById('topSystemDrawer');
@@ -16333,7 +16387,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       })();
 </script>
 
-  <!-- v11.0 圖鑑單位四態立繪與精簡招式詳情彈窗 -->
+  <!-- v11.1 圖鑑單位四態立繪與精簡招式詳情彈窗 -->
   <div id="encDetailModal" style="position:fixed; top:0; right:0; bottom:0; left:0; z-index:75;" class="hidden bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3">
     <div style="max-height:90vh; width:100%; max-width:760px;" class="bg-slate-900 border-2 border-cyan-400/70 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-2">
@@ -16343,15 +16397,15 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div id="encDetailBody" class="p-4 overflow-y-auto space-y-3 text-xs"></div>
     </div>
   </div>
-  <!-- 【V11.0 手機直屏提示】 -->
+  <!-- 【V11.1 手機直屏提示】 -->
   <div id="mobilePortraitPrompt" style="position:fixed; inset:0; z-index:95; background:rgba(2,6,23,0.92); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px; text-align:center;">
     <div style="max-width:320px; background:#0f172a; border:2px solid #38bdf8; border-radius:20px; padding:22px; box-shadow:0 16px 40px rgba(0,0,0,0.7);">
       <div style="font-size:40px; margin-bottom:8px;">📱↻</div>
       <div style="font-size:16px; font-weight:900; color:#fde047; margin-bottom:8px;">建議橫放手機遊玩</div>
       <div style="font-size:12px; color:#cbd5e1; line-height:1.6; margin-bottom:16px;">六角格戰棋與 2.5D 橫向動作在橫屏模式下視野最完整，並自動開啟圓形虛擬搖桿與單指拖曳縮放。</div>
       <div style="display:flex; gap:8px; justify-content:center;">
-        <button id="btnDismissPortrait" type="button" style="padding:8px 14px; border-radius:10px; background:#1e293b; border:1px solid #475569; color:#e2e8f0; font-size:12px; font-weight:800;">繼續直屏</button>
-        <button id="btnPortraitFullscreen" type="button" style="padding:8px 14px; border-radius:10px; background:linear-gradient(90deg,#0284c7,#4f46e5); color:#fff; font-size:12px; font-weight:900;">⛶ 進入全螢幕</button>
+        <button id="btnDismissPortrait" type="button" onclick="document.getElementById('mobilePortraitPrompt')?.classList.add('portrait-dismissed');" style="padding:10px 16px; border-radius:10px; background:#1e293b; border:1px solid #475569; color:#e2e8f0; font-size:13px; font-weight:800;">繼續直屏</button>
+        <button id="btnPortraitFullscreen" type="button" onclick="document.getElementById('mobilePortraitPrompt')?.classList.add('portrait-dismissed'); if(document.documentElement.requestFullscreen){document.documentElement.requestFullscreen().catch(()=>{});}" style="padding:10px 16px; border-radius:10px; background:linear-gradient(90deg,#0284c7,#4f46e5); color:#fff; font-size:13px; font-weight:900;">⛶ 進入全螢幕</button>
       </div>
     </div>
   </div>
