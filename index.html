@@ -9,7 +9,7 @@
   <link rel="manifest" href="./manifest.json" />
   <title>異世界魔導學園戰略錄 - v11.2 雙端自適應正式版 (PC × 手機平板PWA)</title>
   <style id="v11MobileAdaptiveCss">
-    #hexCanvas, #battleCanvas { touch-action: none; -webkit-user-select: none; user-select: none; }
+    #hexMapCanvas, #battleCanvas { touch-action: none; -webkit-user-select: none; user-select: none; }
     #mobileTouchControlsOverlay { pointer-events: none; user-select: none; -webkit-user-select: none; touch-action: none; }
     #mobileTouchControlsOverlay button, #mobileJoyBase { pointer-events: auto; touch-action: none; }
     #btnMobileInfoDrawerToggle { display: none; }
@@ -17,7 +17,23 @@
     @media (max-width: 1023px), (max-height: 560px) {
       #hexMapView { position: relative; padding: 4px !important; gap: 6px !important; }
       #hexMapView > section { grid-column: 1 / -1 !important; }
-      #hexMapViewport { height: calc(100dvh - 58px) !important; max-height: none !important; min-height: 260px !important; }
+      #hexMapViewport {
+        height: calc(100dvh - 58px) !important;
+        max-height: none !important;
+        min-height: 260px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #0f172a !important;
+      }
+      #hexMapCanvas {
+        width: min(100%, calc((100dvh - 58px) * 1360 / 780)) !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        aspect-ratio: 1360 / 780 !important;
+        object-fit: contain !important;
+      }
       #hexMapView > aside {
         position: fixed !important; top: 46px; right: 6px; bottom: 6px; width: min(330px, 86vw);
         z-index: 48; overflow-y: auto; display: none;
@@ -26,11 +42,87 @@
       #hexMapView > aside.mobile-drawer-open { display: flex !important; }
       #btnMobileInfoDrawerToggle { display: inline-flex !important; }
       #hexCommandMenuOverlay button { min-height: 34px; font-size: 12px !important; }
+
+      /* 【V11.3 修正】2.5D 戰鬥舞台嚴格鎖定 16:9 等比例置中，絕不壓扁/拉伸人物 */
       #battleSandboxView { padding: 2px !important; }
       #battleStageSection { grid-column: 1 / -1 !important; }
-      #battleStageSection > div:first-child { min-height: calc(100dvh - 54px) !important; height: calc(100dvh - 54px) !important; aspect-ratio: auto !important; }
+      #battleStageSection > div:first-child {
+        min-height: calc(100dvh - 50px) !important;
+        height: calc(100dvh - 50px) !important;
+        aspect-ratio: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #020617 !important;
+      }
+      #battleCanvas {
+        width: min(100%, calc((100dvh - 50px) * 16 / 9)) !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        aspect-ratio: 16 / 9 !important;
+        object-fit: contain !important;
+      }
       #battleSandboxView > aside { display: none !important; }
       #virtualControlsBody { display: none !important; }
+
+      /* 【V11.3 修正】手機 2.5D 頂部 HUD 超薄化：隱藏重複 2×2 技能列表與冗餘資訊，將血條與計時壓縮成單列薄條 */
+      #battleTopSkillBar { padding: 2px 4px !important; }
+      #battleTopSkillBar > div { gap: 4px !important; align-items: center !important; }
+      #battleTopSkillBar .hud-panel-1p,
+      #battleTopSkillBar .hud-panel-2p {
+        padding: 2px 6px !important;
+        border-radius: 6px !important;
+        background: rgba(2, 6, 23, 0.72) !important;
+      }
+      #battleTopSkillBar .hud-skill-grid,
+      #battleTopSkillBar .hud-substats-row,
+      #battleTopSkillBar .hud-time-label,
+      #btnToggleLocal2P {
+        display: none !important;
+      }
+      #hudPlayerName, #hudEnemyName, #hudPlayerHpText, #hudEnemyHpText {
+        font-size: 10px !important;
+        line-height: 1.15 !important;
+      }
+      #battleTopSkillBar .h-2\.5 { height: 6px !important; }
+      #battleTopSkillBar .hud-center-panel {
+        width: auto !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 4px !important;
+        padding: 2px 6px !important;
+        border-radius: 6px !important;
+        background: rgba(2, 6, 23, 0.78) !important;
+      }
+      #hudTimer { font-size: 15px !important; line-height: 1 !important; min-width: 22px; text-align: center; }
+      #battleTopSkillBar .hud-center-btns {
+        flex-direction: row !important;
+        width: auto !important;
+        gap: 3px !important;
+        padding-top: 0 !important;
+      }
+      #btnToggleBattleAutoAi, #btnBattlePause {
+        width: auto !important;
+        padding: 2px 5px !important;
+        font-size: 9px !important;
+        white-space: nowrap !important;
+      }
+      #mobileJoyBase {
+        left: 10px !important;
+        bottom: 10px !important;
+        width: 104px !important;
+        height: 104px !important;
+        opacity: 0.86;
+      }
+      #mobileJoyKnob { width: 44px !important; height: 44px !important; }
+      #mobileSkillCluster {
+        right: 8px !important;
+        bottom: 8px !important;
+        transform: scale(0.84);
+        transform-origin: bottom right;
+        opacity: 0.9;
+      }
     }
     /* 【V11.2 修正】手機橫屏與直屏標題主畫面完整適配，絕不讓立繪擠掉選單或鎖死捲動 */
     @media (max-width: 1023px), (max-height: 560px) {
@@ -66,7 +158,18 @@
       #titleSectionMode { overflow-y: visible !important; flex: none !important; }
     }
     @media (max-width: 760px) and (orientation: portrait) {
-      
+      /* 直屏 2.5D 戰鬥：上方保留薄 HUD 空間、中間完整 16:9 舞台、下方留給搖桿與技能鈕，完全不遮擋也不壓扁 */
+      #battleStageSection > div:first-child {
+        padding-top: 40px !important;
+        padding-bottom: 162px !important;
+        align-items: center !important;
+      }
+      #battleCanvas {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 100% !important;
+        aspect-ratio: 16 / 9 !important;
+      }
       #startMenuHeroBg {
         flex-direction: column !important;
         overflow-y: auto !important;
@@ -1301,7 +1404,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             <div id="mobileJoyKnob" style="width:52px; height:52px; border-radius:9999px; background:radial-gradient(circle at 35% 35%, rgba(125,211,252,0.92), rgba(2,132,199,0.82)); border:2px solid #e0f2fe; box-shadow:0 4px 14px rgba(0,0,0,0.55); transform:translate(0px,0px); transition:transform 0.04s linear;"></div>
           </div>
           <!-- 右下：4 顆圓形技能觸控鈕 -->
-          <div style="position:absolute; right:16px; bottom:14px; width:196px; height:152px;">
+          <div id="mobileSkillCluster" style="position:absolute; right:16px; bottom:14px; width:196px; height:152px;">
             <button id="mBtnSkill1" type="button" style="position:absolute; right:0; bottom:4px; width:64px; height:64px; border-radius:9999px; background:rgba(225,29,72,0.82); border:2.5px solid #fda4af; color:#fff; font-weight:900; font-size:13px; box-shadow:0 4px 14px rgba(0,0,0,0.55); display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.1;">
               <span>⚔️ 1</span><span style="font-size:10px; opacity:.9;">普攻</span>
             </button>
@@ -1322,7 +1425,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           <div style="display:flex; flex-direction:row; align-items:flex-start; gap:6px; width:100%;">
 
             <!-- 左上：1P 血條 + 田字 2×2 四格技能卡 -->
-            <div style="flex:1 1 0%; min-width:0; padding:5px 7px;" class="bg-slate-950/75 backdrop-blur-sm border border-sky-400/45 rounded-lg space-y-0.5 shadow-lg">
+            <div style="flex:1 1 0%; min-width:0; padding:5px 7px;" class="hud-panel-1p bg-slate-950/75 backdrop-blur-sm border border-sky-400/45 rounded-lg space-y-0.5 shadow-lg">
               <div class="flex items-center justify-between text-[11px] sm:text-xs gap-1">
                 <span id="hudPlayerName" class="font-black text-sky-300 truncate">🔵 1P 角色</span>
                 <span id="hudPlayerHpText" class="font-mono font-black text-white shrink-0">370 / 370</span>
@@ -1330,14 +1433,14 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
               <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
                 <div id="hudPlayerHpBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-150" style="width: 100%;"></div>
               </div>
-              <div class="flex items-center justify-between text-[10px] text-slate-300 font-mono">
+              <div class="hud-substats-row flex items-center justify-between text-[10px] text-slate-300 font-mono">
                 <span>必殺:<strong id="hudAmmoDots" class="text-amber-300 ml-0.5">● (1/1)</strong></span>
                 <span id="hudPlayerStats" class="truncate">ATK:20 DEF:11</span>
               </div>
               <div id="hudAllySwitchBar" class="hidden"></div>
 
               <!-- 1P 田字 2×2 四格精簡技能 -->
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; padding-top:2px; width:100%;">
+              <div class="hud-skill-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:4px; padding-top:2px; width:100%;">
                 <div id="topSkill1Card" class="px-1.5 py-1 rounded bg-sky-950/75 border border-sky-500/50 flex flex-col">
                   <div class="flex items-center justify-between gap-1 text-[9px] font-mono">
                     <span class="px-1 rounded bg-sky-400 text-slate-950 font-black">F / 1</span>
@@ -1374,15 +1477,15 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             </div>
 
             <!-- 正中：倒數計時 TIME + 控制快捷鈕 -->
-            <div style="width:104px; flex-shrink:0; pointer-events:auto; padding:4px 5px;" class="flex flex-col items-center justify-start gap-0.5 bg-slate-950/80 backdrop-blur-sm border border-indigo-400/45 rounded-lg shadow-lg">
-              <div class="text-[8px] font-black uppercase tracking-widest text-indigo-300 leading-none">TIME</div>
+            <div style="width:104px; flex-shrink:0; pointer-events:auto; padding:4px 5px;" class="hud-center-panel flex flex-col items-center justify-start gap-0.5 bg-slate-950/80 backdrop-blur-sm border border-indigo-400/45 rounded-lg shadow-lg">
+              <div class="hud-time-label text-[8px] font-black uppercase tracking-widest text-indigo-300 leading-none">TIME</div>
               <div id="hudTimer" class="text-xl sm:text-2xl font-black font-mono text-amber-300 arcade-shadow leading-none">
                 60
               </div>
               <div id="hudComboBadge" class="px-1.5 py-0.5 rounded bg-rose-600/90 text-[10px] font-black text-white hidden">
                 0 HIT!
               </div>
-              <div class="flex flex-col w-full gap-1 pt-0.5">
+              <div class="hud-center-btns flex flex-col w-full gap-1 pt-0.5">
                 <button id="btnToggleBattleAutoAi" type="button" class="w-full py-0.5 rounded bg-slate-800/90 hover:bg-slate-700 border border-emerald-500/50 text-[10px] font-black text-emerald-300 transition-all">
                   🤖 委任: 關
                 </button>
@@ -1396,7 +1499,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             </div>
 
             <!-- 右上：2P / 敵方血條 + 田字 2×2 四格技能卡 -->
-            <div style="flex:1 1 0%; min-width:0; padding:5px 7px;" class="bg-slate-950/75 backdrop-blur-sm border border-rose-400/45 rounded-lg space-y-0.5 shadow-lg">
+            <div style="flex:1 1 0%; min-width:0; padding:5px 7px;" class="hud-panel-2p bg-slate-950/75 backdrop-blur-sm border border-rose-400/45 rounded-lg space-y-0.5 shadow-lg">
               <div class="flex items-center justify-between text-[11px] sm:text-xs gap-1">
                 <span id="hudEnemyName" class="font-black text-rose-300 truncate">🔴 2P / 敵方</span>
                 <span id="hudEnemyHpText" class="font-mono font-black text-white shrink-0">250 / 250</span>
@@ -1404,13 +1507,13 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
               <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
                 <div id="hudEnemyHpBar" class="h-full bg-gradient-to-r from-rose-500 to-orange-500 rounded-full transition-all duration-150" style="width: 100%;"></div>
               </div>
-              <div class="flex items-center justify-between text-[10px] text-slate-300 font-mono gap-1">
+              <div class="hud-substats-row flex items-center justify-between text-[10px] text-slate-300 font-mono gap-1">
                 <span id="hudEnemyDefBadge" class="truncate text-rose-200">DEF: 8</span>
                 <span id="hudFieldCount" class="shrink-0 text-slate-300">同屏: 3/7</span>
               </div>
 
               <!-- 2P / 敵方 田字 2×2 四格精簡技能 -->
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; padding-top:2px; width:100%;">
+              <div class="hud-skill-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:4px; padding-top:2px; width:100%;">
                 <div id="enemySkill1Card" class="px-1.5 py-1 rounded bg-sky-950/65 border border-sky-500/40 flex flex-col">
                   <div class="flex items-center justify-between gap-1 text-[9px] font-mono">
                     <span class="px-1 rounded bg-rose-400 text-slate-950 font-black">小鍵1</span>
@@ -1866,7 +1969,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div class="relative z-10 lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between items-center border-b lg:border-b-0 lg:border-r border-indigo-500/30 bg-gradient-to-b from-indigo-950/40 via-transparent to-slate-950/80">
         <div class="w-full flex items-center justify-between">
           <span class="px-3 py-1 rounded-full bg-pink-500/25 border border-pink-400/60 text-pink-200 text-xs font-black tracking-wider">
-            ✨ GRAND STRATEGY v11.2
+            ✨ GRAND STRATEGY v11.3
           </span>
           <span id="titlePortraitClubBadge" class="px-2.5 py-0.5 rounded bg-indigo-900/80 border border-indigo-400/60 text-[11px] font-bold text-amber-300">
             👑 學生會・星耀演藝聯盟
