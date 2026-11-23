@@ -2006,7 +2006,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div class="relative z-10 lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between items-center border-b lg:border-b-0 lg:border-r border-indigo-500/30 bg-gradient-to-b from-indigo-950/40 via-transparent to-slate-950/80">
         <div class="w-full flex items-center justify-between">
           <span class="px-3 py-1 rounded-full bg-pink-500/25 border border-pink-400/60 text-pink-200 text-xs font-black tracking-wider">
-            ✨ GRAND STRATEGY v11.4
+            ✨ GRAND STRATEGY v11.5
           </span>
           <span id="titlePortraitClubBadge" class="px-2.5 py-0.5 rounded bg-indigo-900/80 border border-indigo-400/60 text-[11px] font-bold text-amber-300">
             👑 學生會・星耀演藝聯盟
@@ -2051,7 +2051,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
               24×12 六角大戰略 × 七大兵種純六圍相剋 × 2.5D 街機必殺演出
             </p>
           </div>
-          <button id="btnResumeCurrentGame" type="button" class="btn-arcade px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-500 text-xs font-black text-emerald-300 shadow">
+          <button id="btnResumeCurrentGame" type="button" class="hidden btn-arcade px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-500 text-xs font-black text-emerald-300 shadow">
             ▶️ 返回進行中戰局
           </button>
         </div>
@@ -3222,11 +3222,27 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         if (battleSection) {
           battleSection.style.gridColumn = isRealBattle ? '1 / -1' : '';
         }
-        if (floatBackBtn) floatBackBtn.classList.toggle('hidden', !isRealBattle);
+        const isCodexTryout = !!GameState.returnToEncyclopediaOnBack;
+        if (floatBackBtn) {
+          floatBackBtn.classList.toggle('hidden', !(isRealBattle || isCodexTryout));
+          floatBackBtn.textContent = isCodexTryout ? '📖 返回圖鑑' : '🗺️ 結算返回六角地圖';
+        }
         if (backBtn) {
-          backBtn.textContent = GameState.returnToEncyclopediaOnBack
+          backBtn.textContent = isCodexTryout
             ? '📖 試玩完畢返回圖鑑'
             : (isRealBattle ? '🗺️ 結算返回六角地圖' : '🗺️ 返回六角地圖');
+        }
+        const settleBackBtn = document.getElementById('btnReturnHexFromBattle');
+        if (settleBackBtn) {
+          settleBackBtn.textContent = isCodexTryout
+            ? '📖 試玩完畢返回圖鑑'
+            : '🗺️ 確認戰果並返回六角戰略地圖';
+        }
+        const pauseBackBtn = document.getElementById('btnBackHexFromPause');
+        if (pauseBackBtn) {
+          pauseBackBtn.textContent = isCodexTryout
+            ? '📖 結束試玩返回圖鑑'
+            : '🗺️ 返回六角地圖';
         }
         if (typeof resizeCanvas === 'function') setTimeout(resizeCanvas, 20);
       }
@@ -9337,6 +9353,11 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         }
       }
 
+      function syncResumeCurrentGameBtn() {
+        const btn = document.getElementById('btnResumeCurrentGame');
+        if (btn) btn.classList.toggle('hidden', !HexWorld.hasActiveMatch);
+      }
+
       function loadGameFromSlot(slotNum) {
         try {
           const s = Number(slotNum) || Number(document.getElementById('selTopSaveSlot')?.value) || 1;
@@ -9352,6 +9373,8 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           clearEnemyTurnTimers();
           HexWorld.isEnemyTurnRunning = false;
           HexWorld.pendingEngagement = null;
+          HexWorld.hasActiveMatch = true;
+          syncResumeCurrentGameBtn();
           HexWorld.turn = parsed.turn || 1;
           HexWorld.gameMode = parsed.gameMode || 'story';
         HexWorld.activeTeam = parsed.activeTeam || 'ally';
@@ -10586,14 +10609,38 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           selectHex(defenderCol, defenderRow, false, true);
         }
 
+        if (GameState.returnToEncyclopediaOnBack) {
+          GameState.returnToEncyclopediaOnBack = false;
+          GameState.isWaitingForStart = false;
+          GameState.isPaused = false;
+          document.getElementById('battleReadyStartOverlay')?.classList.add('hidden');
+          document.getElementById('battlePauseOverlay')?.classList.add('hidden');
+          document.getElementById('timeUpOverlay')?.classList.add('hidden');
+          if (!HexWorld.hasActiveMatch) {
+            // 尚未開始任何戰局：絕不誤進背景六角棋盤，直接保持主選單並在上方開啟圖鑑
+            document.getElementById('startMenuModal')?.classList.remove('hidden');
+            syncResumeCurrentGameBtn();
+            renderEncyclopediaGrid();
+            document.getElementById('modalEncyclopedia')?.classList.remove('hidden');
+            return;
+          }
+          switchLayer('hex');
+          updateHexUi();
+          renderBaseModalContent();
+          renderEncyclopediaGrid();
+          document.getElementById('modalEncyclopedia')?.classList.remove('hidden');
+          return;
+        }
+
+        if (!HexWorld.hasActiveMatch) {
+          document.getElementById('startMenuModal')?.classList.remove('hidden');
+          syncResumeCurrentGameBtn();
+          return;
+        }
+
         switchLayer('hex');
         updateHexUi();
         renderBaseModalContent();
-        if (GameState.returnToEncyclopediaOnBack) {
-          GameState.returnToEncyclopediaOnBack = false;
-          renderEncyclopediaGrid();
-          document.getElementById('modalEncyclopedia').classList.remove('hidden');
-        }
 
         if (HexWorld.isEnemyTurnRunning && !HexWorld.victoryAchieved) {
           updateEnemyTurnBanner(`🔴 接戰結算完畢，繼續執行剩餘敵方部隊行動 (尚餘 ${HexWorld.enemyTurnQueue ? HexWorld.enemyTurnQueue.length : 0} 員)...`);
@@ -16036,6 +16083,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           const selEl = document.getElementById('selSandboxSpriteCharacter');
           if (selEl) selEl.value = spKey;
           initEntities(spKey, { includeAlly: false, enemySpriteKey: chosenEnemy });
+          syncBattleCheatPanelVisibility();
         });
         const closeBtn = document.getElementById('btnCloseEncDetail');
         if (closeBtn) closeBtn.onclick = () => modal.classList.add('hidden');
@@ -16130,6 +16178,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
               const selEl = document.getElementById('selSandboxSpriteCharacter');
               if (selEl) selEl.value = spKey;
               initEntities(spKey, { includeAlly: false, enemySpriteKey: EncFilter.tryoutEnemyKey || 'random' });
+              syncBattleCheatPanelVisibility();
             });
 
             grid.appendChild(card);
@@ -16147,9 +16196,10 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       });
       document.getElementById('btnCloseEncyclopedia').addEventListener('click', () => {
         document.getElementById('modalEncyclopedia').classList.add('hidden');
-        if (GameState.reopenStartMenuAfterEnc) {
+        if (GameState.reopenStartMenuAfterEnc || !HexWorld.hasActiveMatch) {
           GameState.reopenStartMenuAfterEnc = false;
           document.getElementById('startMenuModal')?.classList.remove('hidden');
+          syncResumeCurrentGameBtn();
         }
       });
 
@@ -16545,6 +16595,10 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             allyFaction: selectedHeroRouteFaction,
             resetHeroCampaign: !keepExistingHeroes
           });
+          HexWorld.hasActiveMatch = true;
+          syncResumeCurrentGameBtn();
+          HexWorld.hasActiveMatch = true;
+          syncResumeCurrentGameBtn();
           switchLayer('hex');
           startModal.classList.add('hidden');
           Sfx.play('burst');
@@ -16568,12 +16622,19 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       const btnOpenStartTop = document.getElementById('btnOpenStartMenuTop');
       if (btnOpenStartTop && startModal) {
         btnOpenStartTop.addEventListener('click', () => {
+          if (GameState.returnToEncyclopediaOnBack) {
+            GameState.returnToEncyclopediaOnBack = false;
+            GameState.isWaitingForStart = false;
+            document.getElementById('battleReadyStartOverlay')?.classList.add('hidden');
+          }
+          syncResumeCurrentGameBtn();
           startModal.classList.remove('hidden');
         });
       }
       const btnResumeGame = document.getElementById('btnResumeCurrentGame');
       if (btnResumeGame && startModal) {
         btnResumeGame.addEventListener('click', () => {
+          if (!HexWorld.hasActiveMatch) return;
           startModal.classList.add('hidden');
         });
       }
@@ -16599,6 +16660,8 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         });
         GameState.isLocal2P = true;
         if (typeof syncLocal2PButton === 'function') syncLocal2PButton();
+        HexWorld.hasActiveMatch = true;
+        syncResumeCurrentGameBtn();
         switchLayer('hex');
         startModal.classList.add('hidden');
         Sfx.play('burst');
@@ -16626,6 +16689,8 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             enemyTech,
             mapTemplate
           });
+          HexWorld.hasActiveMatch = true;
+          syncResumeCurrentGameBtn();
           switchLayer('hex');
           startModal.classList.add('hidden');
           Sfx.play('burst');
@@ -16641,6 +16706,8 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             3: { mode: 'story', chapter: 3, allyFaction: 'sports', enemyFaction: 'prefect', allyGold: 3600, enemyGold: 5200, allyTech: 2, enemyTech: 3 }
           };
           initHexWorld(presets[ch] || presets[1]);
+          HexWorld.hasActiveMatch = true;
+          syncResumeCurrentGameBtn();
           switchLayer('hex');
           startModal.classList.add('hidden');
           Sfx.play('burst');
@@ -16651,6 +16718,8 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         preloadAllSprites();
         initSceneBackgroundBanners();
         initHexWorld();
+        HexWorld.hasActiveMatch = false;
+        syncResumeCurrentGameBtn();
         initEntities();
         switchLayer('hex');
         if (rafId) cancelAnimationFrame(rafId);
