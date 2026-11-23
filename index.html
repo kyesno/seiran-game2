@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.json" />
-  <title>異世界魔導學園戰略錄 - v11.2 雙端自適應正式版 (PC × 手機平板PWA)</title>
+  <title>異世界魔導學園戰略錄 - v11.6 雙端自適應正式版 (PC × 手機平板PWA)</title>
   <style id="v11MobileAdaptiveCss">
     #hexMapCanvas, #battleCanvas { touch-action: none; -webkit-user-select: none; user-select: none; }
     #mobileTouchControlsOverlay { pointer-events: none; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -124,6 +124,16 @@
         transform-origin: bottom right;
         opacity: 0.9;
       }
+      /* 【V11.6 修正】手機版返回圖鑑/地圖浮動鈕移至右上角薄 HUD 下方，絕不擋住右下技能按鈕 */
+      #btnBackHexFloating {
+        top: 34px !important;
+        right: 6px !important;
+        bottom: auto !important;
+        left: auto !important;
+        padding: 3px 8px !important;
+        font-size: 10px !important;
+        z-index: 25 !important;
+      }
     }
     /* 【V11.2 修正】手機橫屏與直屏標題主畫面完整適配，絕不讓立繪擠掉選單或鎖死捲動 */
     @media (max-width: 1023px), (max-height: 560px) {
@@ -201,7 +211,7 @@
       #otgBanner {
         display: none !important;
       }
-      #hexMapView, #battleSandboxView {
+      #hexMapView:not(.hidden), #battleSandboxView:not(.hidden) {
         width: 100% !important;
         max-width: 100vw !important;
         margin: 0 auto !important;
@@ -210,6 +220,9 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
+      }
+      #hexMapView.hidden, #battleSandboxView.hidden, #startMenuModal.hidden, #modalEncyclopedia.hidden {
+        display: none !important;
       }
       #hexMapSection, #battleStageSection {
         width: 100% !important;
@@ -2006,7 +2019,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div class="relative z-10 lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between items-center border-b lg:border-b-0 lg:border-r border-indigo-500/30 bg-gradient-to-b from-indigo-950/40 via-transparent to-slate-950/80">
         <div class="w-full flex items-center justify-between">
           <span class="px-3 py-1 rounded-full bg-pink-500/25 border border-pink-400/60 text-pink-200 text-xs font-black tracking-wider">
-            ✨ GRAND STRATEGY v11.5
+            ✨ GRAND STRATEGY v11.6
           </span>
           <span id="titlePortraitClubBadge" class="px-2.5 py-0.5 rounded bg-indigo-900/80 border border-indigo-400/60 text-[11px] font-bold text-amber-300">
             👑 學生會・星耀演藝聯盟

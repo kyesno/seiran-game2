@@ -1,4 +1,4 @@
-const CACHE_NAME = 'magic-academy-tactics-v11-5';
+const CACHE_NAME = 'magic-academy-tactics-v11-6';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
