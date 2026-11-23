@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.json" />
-  <title>異世界魔導學園戰略錄 - v11.6 雙端自適應正式版 (PC × 手機平板PWA)</title>
+  <title>異世界魔導學園戰略錄 - v11.8 雙端自適應正式版 (PC × 手機平板PWA)</title>
   <style id="v11MobileAdaptiveCss">
     #hexMapCanvas, #battleCanvas { touch-action: none; -webkit-user-select: none; user-select: none; }
     #mobileTouchControlsOverlay { pointer-events: none; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -133,6 +133,22 @@
         padding: 3px 8px !important;
         font-size: 10px !important;
         z-index: 25 !important;
+      }
+      /* 【V11.7 修正】手機版戰鬥結算、暫停與接戰預覽精簡化，絕不爆版截斷按鈕 */
+      #timeUpOverlay { padding: 6px !important; }
+      #timeUpCard { padding: 8px 12px !important; max-width: 440px !important; }
+      #settlementSubTag, #settlementDesc { display: none !important; }
+      #settlementTitle { font-size: 15px !important; margin-bottom: 4px !important; }
+      #settlementList { padding: 6px 8px !important; margin-bottom: 6px !important; font-size: 11px !important; }
+      #btnReturnHexFromBattle { padding: 7px 12px !important; font-size: 12px !important; }
+      #battlePauseOverlay > div {
+        padding: 10px 14px !important;
+        max-height: calc(100% - 10px) !important;
+        overflow-y: auto !important;
+      }
+      #engagementPreviewCard {
+        max-height: calc(100% - 14px) !important;
+        overflow-y: auto !important;
       }
     }
     /* 【V11.2 修正】手機橫屏與直屏標題主畫面完整適配，絕不讓立繪擠掉選單或鎖死捲動 */
@@ -1664,14 +1680,14 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         </div>
 
         <!-- 戰鬥結束結算遮罩 -->
-        <div id="timeUpOverlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-20 hidden">
-          <div class="bg-slate-900 border-2 border-indigo-500 rounded-2xl p-5 max-w-md w-full text-center shadow-2xl">
-            <div class="text-xs font-black uppercase tracking-widest text-indigo-400 mb-1">BATTLE FINISHED</div>
-            <h2 id="settlementTitle" class="text-2xl font-black text-amber-300 mb-2">⏱️ 戰鬥生存結算</h2>
-            <p id="settlementDesc" class="text-xs text-slate-300 mb-4 leading-relaxed">
+        <div id="timeUpOverlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-2 sm:p-4 z-20 hidden">
+          <div id="timeUpCard" style="max-height: calc(100% - 10px); display: flex; flex-direction: column; overflow: hidden;" class="bg-slate-900 border-2 border-indigo-500 rounded-2xl p-3 sm:p-5 max-w-md w-full text-center shadow-2xl">
+            <div id="settlementSubTag" class="text-xs font-black uppercase tracking-widest text-indigo-400 mb-1 shrink-0">BATTLE FINISHED</div>
+            <h2 id="settlementTitle" class="text-lg sm:text-2xl font-black text-amber-300 mb-1.5 sm:mb-2 shrink-0">⏱️ 戰鬥生存結算</h2>
+            <p id="settlementDesc" class="text-xs text-slate-300 mb-3 leading-relaxed shrink-0">
               存活單位保留殘餘 HP 與戰鬥獲得的 EXP (升級偏重防禦亂數成長)；若載具被擊毀，車內搭載人員全數殉爆除名！
             </p>
-            <div id="settlementList" class="bg-slate-950 rounded-xl p-3 text-left text-xs space-y-1.5 mb-4 border border-slate-800 font-mono">
+            <div id="settlementList" style="flex: 1 1 auto; min-height: 0; overflow-y: auto;" class="bg-slate-950 rounded-xl p-2.5 sm:p-3 text-left text-xs space-y-1 mb-2.5 sm:mb-4 border border-slate-800 font-mono">
             </div>
             <div class="pt-1">
               <button id="btnReturnHexFromBattle" type="button" class="btn-arcade w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 font-black text-sm sm:text-base text-white shadow-xl border border-emerald-300">
@@ -2019,7 +2035,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div class="relative z-10 lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between items-center border-b lg:border-b-0 lg:border-r border-indigo-500/30 bg-gradient-to-b from-indigo-950/40 via-transparent to-slate-950/80">
         <div class="w-full flex items-center justify-between">
           <span class="px-3 py-1 rounded-full bg-pink-500/25 border border-pink-400/60 text-pink-200 text-xs font-black tracking-wider">
-            ✨ GRAND STRATEGY v11.6
+            ✨ GRAND STRATEGY v11.8
           </span>
           <span id="titlePortraitClubBadge" class="px-2.5 py-0.5 rounded bg-indigo-900/80 border border-indigo-400/60 text-[11px] font-bold text-amber-300">
             👑 學生會・星耀演藝聯盟
@@ -3237,13 +3253,14 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         }
         const isCodexTryout = !!GameState.returnToEncyclopediaOnBack;
         if (floatBackBtn) {
-          floatBackBtn.classList.toggle('hidden', !(isRealBattle || isCodexTryout));
-          floatBackBtn.textContent = isCodexTryout ? '📖 返回圖鑑' : '🗺️ 結算返回六角地圖';
+          // 【V11.7 修正】實戰中隱藏浮動「結算返回」鈕（避免形同無代價取消戰鬥），僅於圖鑑試玩顯示「📖 返回圖鑑」
+          floatBackBtn.classList.toggle('hidden', !isCodexTryout);
+          floatBackBtn.textContent = '📖 返回圖鑑';
         }
         if (backBtn) {
           backBtn.textContent = isCodexTryout
             ? '📖 試玩完畢返回圖鑑'
-            : (isRealBattle ? '🗺️ 結算返回六角地圖' : '🗺️ 返回六角地圖');
+            : (isRealBattle ? '🏳️ 戰術撤退返回地圖' : '🗺️ 返回六角地圖');
         }
         const settleBackBtn = document.getElementById('btnReturnHexFromBattle');
         if (settleBackBtn) {
@@ -3253,9 +3270,16 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         }
         const pauseBackBtn = document.getElementById('btnBackHexFromPause');
         if (pauseBackBtn) {
-          pauseBackBtn.textContent = isCodexTryout
-            ? '📖 結束試玩返回圖鑑'
-            : '🗺️ 返回六角地圖';
+          if (isCodexTryout) {
+            pauseBackBtn.textContent = '📖 結束試玩返回圖鑑';
+            pauseBackBtn.className = 'w-full py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-400 text-cyan-200 font-black text-xs';
+          } else if (isRealBattle) {
+            pauseBackBtn.textContent = '🤖 交給 AI 託管打完此戰（不可中斷撤退）';
+            pauseBackBtn.className = 'w-full py-2 rounded-xl bg-emerald-600/35 hover:bg-emerald-600/55 border border-emerald-400 text-emerald-100 font-black text-xs';
+          } else {
+            pauseBackBtn.textContent = '🗺️ 返回六角地圖';
+            pauseBackBtn.className = 'w-full py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400 text-emerald-200 font-black text-xs';
+          }
         }
         if (typeof resizeCanvas === 'function') setTimeout(resizeCanvas, 20);
       }
@@ -8357,12 +8381,11 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       }
 
       function updateEnemyTurnBanner(text) {
+        // 【V11.7 修正】敵方回合不再彈出附帶「取消行動」的 #hexActionModeBanner，避免遮擋接戰預覽框與地圖
         const banner = document.getElementById('hexActionModeBanner');
-        const textEl = document.getElementById('hexActionModeText');
-        if (banner && textEl) {
-          banner.classList.remove('hidden');
-          textEl.textContent = text;
-        }
+        if (banner) banner.classList.add('hidden');
+        const statusEl = document.getElementById('hexStatusBanner');
+        if (statusEl && text) statusEl.textContent = text;
       }
 
       // 【V11.2 新增】單位實戰戰力評估（造價/階級 × 血量權重 × 等級加成 × 載具折減）
@@ -9127,11 +9150,6 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       }
 
       setTimeout(() => {
-        document.getElementById('btnBackHexFromPause')?.addEventListener('click', () => {
-          document.getElementById('battlePauseOverlay')?.classList.add('hidden');
-          GameState.isPaused = false;
-          document.getElementById('btnBackHexQuick')?.click();
-        });
 
         // 【V11.2 雙端自適應控制中樞】：虛擬圓形搖桿、技能圓鍵、手機資訊抽屜、全螢幕、雙人手機自動演武、PWA 註冊
         const isTouchDeviceV11 = () => (
@@ -10665,6 +10683,11 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
         settleBattleBackToHexMap();
       });
       document.getElementById('btnBackHexQuick').addEventListener('click', () => {
+        if (GameState.isHexLinkedBattle && !GameState.returnToEncyclopediaOnBack && !GameState.isTimeUp) {
+          GameState.playerAutoAi = true;
+          if (typeof syncBattleAutoAiBtn === 'function') syncBattleAutoAiBtn();
+          return;
+        }
         settleBattleBackToHexMap();
       });
 
@@ -16770,6 +16793,16 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
           document.getElementById('btnBackHexQuick')?.click();
         });
         document.getElementById('btnBackHexFromPause')?.addEventListener('click', () => {
+          if (GameState.isHexLinkedBattle && !GameState.returnToEncyclopediaOnBack && !GameState.isTimeUp) {
+            // 【V11.8 修正】實戰禁止中途撤退/取消，改為直接開啟 AI 託管並繼續戰鬥至分出勝負或時間到
+            GameState.playerAutoAi = true;
+            if (typeof syncBattleAutoAiBtn === 'function') syncBattleAutoAiBtn();
+            GameState.isPaused = false;
+            document.getElementById('battlePauseOverlay')?.classList.add('hidden');
+            const pauseBtn = document.getElementById('btnBattlePause');
+            if (pauseBtn) pauseBtn.textContent = '⏸ 暫停(P)';
+            return;
+          }
           document.getElementById('battlePauseOverlay')?.classList.add('hidden');
           GameState.isPaused = false;
           document.getElementById('btnBackHexQuick')?.click();
