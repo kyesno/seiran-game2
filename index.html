@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="./manifest.json" />
-  <title>異世界魔導學園戰略錄 - v12.0 雙端自適應正式版 (PC × 手機平板PWA)</title>
+  <title>異世界魔導學園戰略錄 - v12.1 雙端自適應正式版 (PC × 手機平板PWA)</title>
   <style id="v11MobileAdaptiveCss">
     #hexMapCanvas, #battleCanvas { touch-action: none; -webkit-user-select: none; user-select: none; }
     #mobileTouchControlsOverlay { pointer-events: none; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -2035,7 +2035,7 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
       <div class="relative z-10 lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between items-center border-b lg:border-b-0 lg:border-r border-indigo-500/30 bg-gradient-to-b from-indigo-950/40 via-transparent to-slate-950/80">
         <div class="w-full flex items-center justify-between">
           <span class="px-3 py-1 rounded-full bg-pink-500/25 border border-pink-400/60 text-pink-200 text-xs font-black tracking-wider">
-            ✨ GRAND STRATEGY v12.0
+            ✨ GRAND STRATEGY v12.1
           </span>
           <span id="titlePortraitClubBadge" class="px-2.5 py-0.5 rounded bg-indigo-900/80 border border-indigo-400/60 text-[11px] font-bold text-amber-300">
             👑 學生會・星耀演藝聯盟
@@ -14262,10 +14262,15 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             unit.state = 'IDLE';
           }
 
-          if ((unit.role === 'artillery' || unit.isVehicle || unit.role === 'vehicle') && absDx <= 95 && Math.abs(dy) <= 42 && unit.skillKCd <= 0 && unit.aiThinkTimer <= 0) {
+          const isCloseDefenseK = (unit.role === 'artillery' && unit.skillTrait !== 'homing_low') || unit.isVehicle || unit.role === 'vehicle';
+          const isRangedStyleK = unit.role === 'ranged' || unit.skillTrait === 'homing_low' || (unit.role === 'scout' && unit.skillTrait === 'fan_barrage');
+          if (isCloseDefenseK && absDx <= 95 && Math.abs(dy) <= 42 && unit.skillKCd <= 0 && unit.aiThinkTimer <= 0) {
             unit.aiThinkTimer = 65;
             triggerHeavyBurst(unit);
-          } else if ((unit.role === 'ranged' || (unit.role === 'scout' && unit.skillTrait === 'fan_barrage')) && absDx >= 95 && absDx <= 340 && unit.skillKCd <= 0 && unit.aiThinkTimer <= 0 && Math.random() < 0.62) {
+          } else if (isRangedStyleK && absDx <= 420 && unit.skillKCd <= 0 && unit.aiThinkTimer <= 0 && Math.random() < 0.62) {
+            unit.aiThinkTimer = 65;
+            triggerHeavyBurst(unit);
+          } else if (unit.role === 'scout' && unit.skillTrait === 'dash' && absDx >= 70 && absDx <= 230 && Math.abs(dy) <= 44 && unit.skillKCd <= 0 && unit.aiThinkTimer <= 0 && Math.random() < 0.45) {
             unit.aiThinkTimer = 65;
             triggerHeavyBurst(unit);
           } else if (Math.abs(dy) <= 56 && absDx <= 465 && unit.lightRangedCd <= 0 && unit.aiThinkTimer <= 0) {
@@ -14290,6 +14295,10 @@ h1, h2, h3, h4, p, ul, li { margin: 0; padding: 0; list-style: none; }
             if (canGapCloseK && Math.abs(dx) >= 85 && Math.abs(dx) <= 195 && Math.abs(dy) <= 26 && unit.skillKCd <= 0 && unit.aiThinkTimer <= 0 && Math.random() < 0.45) {
               unit.aiThinkTimer = 65;
               triggerHeavyBurst(unit);
+            } else if (target.role === 'scout' && Math.abs(dx) > 105 && Math.abs(dx) <= 420 && Math.abs(dy) <= 48 && unit.lightRangedCd <= 0 && unit.attackCd <= 0 && unit.aiThinkTimer <= 0 && Math.random() < 0.35) {
+              // 【V12.1 新增】慢速近戰/重坦追不上風箏斥候時，積極以 2 鍵精準對射反制（僅限斥候，不影響遠攻與砲兵）
+              unit.aiThinkTimer = 34;
+              triggerLightRanged(unit, false);
             } else if (Math.abs(dx) > 105 && unit.lightRangedCd <= 0 && unit.attackCd <= 0 && Math.random() < 0.012) {
               // 【V2.4 新增】近戰單位在趕路或外圍沒事做時，也會隨手亂丟遠攻流彈，製造熱鬧的戰場流彈！
               triggerLightRanged(unit, true);
